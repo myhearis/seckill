@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.su.jsekill_project.mapper.SeckillRecordMapper">
+<!--基础实体resultMap-->
+    <resultMap id="baseSeckillRecord" type="SeckillRecord">
+<!--        复合主键-->
+        <id property="key.goodsId" column="seckill_goods_id"></id>
+        <id property="key.userId" column="user_id"></id>
+        <result property="successTime" column="seckill_time"></result>
+    </resultMap>
+<!--
+ //添加秒杀记录
+    int insertSeckillRecord(@Param("seckillRecord") SeckillRecord seckillRecord);
+-->
+    <insert id="insertSeckillRecord">
+        INSERT INTO seckill_record(seckill_goods_id,user_id,seckill_time) VALUES (#{seckillRecord.key.goodsId},#{seckillRecord.key.userId},#{seckillRecord.successTime})
+    </insert>
+<!--
+   //查询秒杀记录
+    SeckillRecord querySeckillRecord(@Param("seckillRecordKey") SeckillRecordKey seckillRecordKey);
+
+-->
+    <select id="querySeckillRecord" resultMap="baseSeckillRecord">
+        select * from  seckill_record WHERE seckill_goods_id=#{seckillRecordKey.goodsId} AND user_id=#{seckillRecordKey.userId};
+    </select>
+
+<!--
+
+  //删除秒杀记录
+    int deleteseckillRecordById(@Param("seckillRecordKey") SeckillRecordKey seckillRecordKey);
+-->
+    <delete id="deleteseckillRecordById">
+        DELETE FROM seckill_record WHERE seckill_goods_id=#{seckillRecordKey.goodsId} AND user_id=#{seckillRecordKey.userId};
+    </delete>
+
+<!--
+
+  //更新秒杀记录
+    int updateSeckillRecord(@Param("seckillRecord") SeckillRecord seckillRecord );
+-->
+    <update id="updateSeckillRecord">
+        UPDATE seckill_record SET seckill_time=#{seckillRecord.successTime} WHERE seckill_goods_id=#{seckillRecord.key.goodsId} AND user_id=#{seckillRecord.key.userId};
+    </update>
+</mapper>
