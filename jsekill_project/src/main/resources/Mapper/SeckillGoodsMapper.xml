@@ -11,6 +11,17 @@
         <result property="storage" column="seckill_goods_storage"></result>
         <result property="groupId" column="group_id"></result>
     </resultMap>
+
+<!--    查询并查询商品组-->
+    <resultMap id="seckillGoodsAndGroup" type="SeckillGoods">
+        <id property="id" column="seckill_goods_id" ></id>
+        <result property="name" column="seckill_goods_name"></result>
+        <result property="price" column="seckill_goods_price"></result>
+        <result property="describe" column="seckill_goods_describe"></result>
+        <result property="storage" column="seckill_goods_storage"></result>
+        <result property="groupId" column="group_id"></result>
+        <association property="group" select="com.su.jsekill_project.mapper.SeckillGoodsGroupMapper.querySeckillGoodsGroupById" column="group_id"></association>
+    </resultMap>
 <!--
 //通过id查询秒杀商品
     SeckillGoods querySeckillGoodsById(@Param("seckillGoodsId") int seckillGoodsId);
@@ -84,4 +95,22 @@
     <delete id="deleteSeckillGoodsById">
         DELETE FROM seckill_goods WHERE seckill_goods.seckill_goods_id=#{seckillGoodsId};
     </delete>
+    <!--
+        //减库存操作
+        int decrStorage(@Param("goodsId") int goodsId,@Param("groupId") int groupId);
+    -->
+    <update id="decrStorage">
+        UPDATE seckill_goods
+        SET seckill_goods_storage = seckill_goods_storage - 1
+        WHERE
+            seckill_goods_id = #{goodsId}
+          AND group_id = #{groupId};
+    </update>
+<!--
+    //查询商品并查询商品组(这里使用分步查询)
+    SeckillGoods getSeckillGoodsAndGroup(@Param("goodsId") int goodsId);
+-->
+    <select id="getSeckillGoodsAndGroup" resultMap="seckillGoodsAndGroup">
+        SELECT * FROM seckill_goods WHERE seckill_goods_id=#{goodsId};
+    </select>
 </mapper>

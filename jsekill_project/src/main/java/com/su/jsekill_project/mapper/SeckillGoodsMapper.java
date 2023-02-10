@@ -24,5 +24,9 @@ public interface SeckillGoodsMapper {
     int updateSeckillGoods(@Param("seckillGoods") SeckillGoods seckillGoods);
     //删除秒杀商品
     int deleteSeckillGoodsById(@Param("seckillGoodsId") int seckillGoodsId);
+    //减库存操作
+    int decrStorage(@Param("goodsId") int goodsId,@Param("groupId") int groupId);
+    //查询商品并查询商品组(这里使用分步查询)
+    SeckillGoods getSeckillGoodsAndGroup(@Param("goodsId") int goodsId);
 
 }

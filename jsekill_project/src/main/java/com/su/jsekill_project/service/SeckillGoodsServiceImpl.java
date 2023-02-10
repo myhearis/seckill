@@ -10,9 +10,11 @@ import com.su.jsekill_project.dto.SeckillMsgBody;
 import com.su.jsekill_project.enums.SeckillStateEnum;
 import com.su.jsekill_project.exception.SeckillException;
 import com.su.jsekill_project.mapper.SeckillGoodsMapper;
+import com.su.jsekill_project.mapper.SeckillRecordMapper;
 import com.su.jsekill_project.pojo.SeckillGoods;
 import com.su.jsekill_project.pojo.SeckillGoodsGroup;
 import com.su.jsekill_project.pojo.SeckillGoodsWrappings;
+import com.su.jsekill_project.pojo.SeckillRecord;
 import com.su.jsekill_project.redisDao.RedisDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +50,8 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService{
     private RedisDao redisDao;
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private SeckillRecordMapper recordMapper;
     @Override
     public int addSeckillGoods(SeckillGoods seckillGoods) {
         return seckillGoodsMapper.insertSeckillGoods(seckillGoods);
@@ -174,6 +178,11 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService{
     }
 
     @Override
+    public int decrStorage(int goodsId, int groupId) {
+        return seckillGoodsMapper.decrStorage(goodsId,groupId);
+    }
+
+    @Override
     public SeckillExecutionResult seckillProcess(int goodsId, int groupId, int userId) {
         //创建一个返回值
         SeckillExecutionResult executionResult=new SeckillExecutionResult();
@@ -287,7 +296,7 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService{
 
         }
     }
-    //在redis中真正执行秒杀操作
+    //在redis中真正执行秒杀操作(成功即不抛出异常，不成功抛出异常)
     @Override
     public void redisSeckillHandler(int userId, int goodsId, int groupId) throws SeckillException {
         //判断库存是否充足
@@ -301,17 +310,81 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService{
             throw new SeckillException(SeckillStateEnum.REPEAT_KILL);
         }
         //(上面这两个可以实现过滤的操作，但是依然会有极端情况，即两个相同的请求同时到达，且同时没有在redis中记录)
+
         //获取分布式锁
+
         //再次判断库存
+        int storageLock = redisDao.getSeckillGoodsStorage(goodsId, groupId);
+        if (storageLock<=0){
+            throw new SeckillException(SeckillStateEnum.SOLD_OUT);
+        }
+        //减库存
+        redisDao.decrGoodsStorage(goodsId,groupId);
+        //在redis中记录秒杀成功
+        Long aLong = redisDao.userSeckillSuccessRecord(goodsId, groupId, userId);
         //释放分布式锁
-        //生成订单对象
     }
+
     //redis秒杀成功后，修改数据库操作
     @Override
-    public long updateStorageAndRecord(int userId, int goodsId, int groupId) {
-        //生成订单记录
-        //修改库存
-        return 0;
+    public SeckillExecutionResult updateStorageAndRecord(int userId, int goodsId, int groupId) {
+
+        try {
+            SeckillExecutionResult executionResult = new SeckillExecutionResult();
+            //生成订单记录
+            SeckillRecord record=new SeckillRecord(goodsId,groupId,userId, new Date().getTime());
+            //插入订单记录
+            int l = recordMapper.insertSeckillRecord(record);
+            //如果影响行数小于0，说明重复秒杀了
+            if (l<=0){
+                throw  new SeckillException(SeckillStateEnum.REPEAT_KILL);
+            }
+            //从数据库中获取秒杀商品，判断是否存在，以及是否在秒杀时间段内
+            SeckillGoods seckillGoodsAndGroup = seckillGoodsMapper.getSeckillGoodsAndGroup(goodsId);
+            //判断秒杀时间是否在时间段内
+            SeckillGoodsGroup group = seckillGoodsAndGroup.getGroup();
+
+            //商品在数据库真实存在时才处理
+            if (seckillGoodsAndGroup!=null){
+                long start = group.getStart();
+                long end = group.getEnd();
+                long now=new Date().getTime();
+                boolean isSeckillTime=false;
+                if (now>start&&now<end)
+                    isSeckillTime=true;
+
+                if (isSeckillTime){
+                    //修改库存
+                    int i = decrStorage(goodsId, groupId);
+                    if (i>0){
+                        SeckillStateEnum success = SeckillStateEnum.SUCCESS;
+                        executionResult.setState(success.getState());
+                        executionResult.setStateInfo(success.getStateInfo());
+                        return executionResult;
+                    }
+                    //如果影响行数小于0，说明数据库服务器有问题，抛出异常
+                    else {
+                        throw new SeckillException(SeckillStateEnum.DB_CONCURRENCY_ERROR);
+                    }
+                }
+                //秒杀结束,未在秒杀时间段内
+                else {
+                    throw new SeckillException(SeckillStateEnum.END);
+                }
+
+
+            }
+            else {
+                throw new SeckillException(SeckillStateEnum.Seckill_Goods_No_exist);
+            }
+
+        }
+        //捕获编译时异常，转化为运行时异常，有利于统一处理
+        catch (Exception e) {
+            e.printStackTrace();
+            throw new SeckillException(SeckillStateEnum.INNER_ERROR);
+        }
+
     }
 
     //判断当前服务器时间是否在秒杀时间段内

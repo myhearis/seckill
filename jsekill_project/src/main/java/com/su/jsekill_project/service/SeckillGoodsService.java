@@ -6,6 +6,7 @@ import com.su.jsekill_project.dto.SeckillResult;
 import com.su.jsekill_project.exception.SeckillException;
 import com.su.jsekill_project.pojo.SeckillGoods;
 import com.su.jsekill_project.pojo.SeckillGoodsWrappings;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 
 import java.util.List;
@@ -46,6 +47,8 @@ public interface SeckillGoodsService {
     List<SeckillGoods> getSeckillGoodsByRedis();
     //从redis中获取商品库存
     int getStorageToRedis(int goodsId,int groupId);
+    //减库存操作
+    int decrStorage( int goodsId,  int groupId);
     //秒杀处理方法,返回秒杀结果
     SeckillExecutionResult seckillProcess(int goodsId, int groupId, int userId);
     //判断前端的秒杀请求是否有效
@@ -59,5 +62,5 @@ public interface SeckillGoodsService {
     //消费者真正秒杀的方法
     void redisSeckillHandler(int userId,int goodsId,int groupId) throws SeckillException;
     //redis秒杀成功后，修改数据库操作
-    long updateStorageAndRecord(int userId,int goodsId,int groupId);
+    SeckillExecutionResult updateStorageAndRecord(int userId,int goodsId,int groupId);
 }

@@ -8,6 +8,7 @@ package com.su.jsekill_project.enums;
  * @Created by Lenovo
  */
 public enum SeckillStateEnum {
+    Seckill_Goods_No_exist(11,"秒杀的商品不存在"),
     //消息发送到MQ时，MQ的ack超时，但是有可能消息已经发送成功了，用户可以等待或者重新发送请求
     MQ_Ack_TimeOut(10,"请等待，或者重新发送请求"),
     //请求正在校验

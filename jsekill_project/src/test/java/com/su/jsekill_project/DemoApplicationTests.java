@@ -13,7 +13,6 @@ import com.su.jsekill_project.mapper.UserMapper;
 import com.su.jsekill_project.pojo.*;
 import com.su.jsekill_project.service.*;
 import com.su.jsekill_project.type.SeckillGoodsListType;
-import org.apache.tomcat.jni.Local;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import javax.servlet.http.HttpSession;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -332,4 +330,10 @@ class DemoApplicationTests {
 //		System.out.println(date);
 //		System.out.println(new Date(1678246200000l));
     }
+  //测试内容:测试查询商品以及商品组
+    @Test
+    public void testGetGoodsAndGroup(){
+		SeckillGoods seckillGoodsAndGroup = seckillGoodsMapper.getSeckillGoodsAndGroup(1);
+		System.out.println(seckillGoodsAndGroup.getGroup().getStart());
+	}
 }

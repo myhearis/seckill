@@ -18,6 +18,13 @@ public class SeckillReceiver {
     //开始消费秒杀请求
     @RabbitHandler
     public  void  process(SeckillMsgBody msgBody){
+        //处理消息
+        //1.在redis中进行秒杀操作
+        //2.在数据库中更新
+        //捕获异常，并处理
+        //手动回复ack
+        //将成功的消息再次写入redis中的 enterMQ记录中，避免超时，没有记录但是发送到了mq的情况
+
         System.out.println("接收到消息"+msgBody);
     }
 }

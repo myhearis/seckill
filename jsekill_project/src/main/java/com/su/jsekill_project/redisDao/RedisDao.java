@@ -37,4 +37,6 @@ public interface RedisDao {
     boolean isSeckillSuccessGoods(int goodsId,int groupId,int userId);
     //从redis中获取指定商品的库存，如果不存在则返回-1
     int getSeckillGoodsStorage(int goodsId,int groupId);
+    //对指定商品的库存-1
+    void decrGoodsStorage(int goodsId,int groupId);
 }

@@ -140,4 +140,12 @@ public class RedisDaoImpl implements RedisDao {
         }
         return count;
     }
+
+    @Override
+    public void decrGoodsStorage(int goodsId, int groupId) {
+        //获取商品的库存key
+        String storageKey = storageKey(goodsId, groupId);
+        //redis中自减库存
+        redisTemplate.opsForValue().decrement(storageKey);
+    }
 }

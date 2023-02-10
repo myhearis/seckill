@@ -17,6 +17,7 @@ public class SeckillGoods {
     private String describe;//商品描述
     private int storage;//商品库存
     private int groupId;//商品组id
+    private SeckillGoodsGroup group;//商品组
 
     public SeckillGoods() {
     }
@@ -75,6 +76,14 @@ public class SeckillGoods {
 
     public void setGroupId(int groupId) {
         this.groupId = groupId;
+    }
+
+    public SeckillGoodsGroup getGroup() {
+        return group;
+    }
+
+    public void setGroup(SeckillGoodsGroup group) {
+        this.group = group;
     }
 
     @Override
