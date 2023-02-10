@@ -109,8 +109,12 @@ class DemoApplicationTests {
     @Test
     public void testAddRecord(){
 		//创建一个记录对象
-		SeckillRecordKey key=new SeckillRecordKey(2,1);
-		SeckillRecord record=new SeckillRecord(key,"2023-01-10 22:30:00:000");
+		SeckillRecordKey key=new SeckillRecordKey(1,1,4);
+		SeckillRecord record=new SeckillRecord();
+		//初始化主键
+		record.initKey(key);
+		//设置秒杀时间
+		record.setSeckillTime(new Date().getTime());
 		int i = recordMapper.insertSeckillRecord(record);
 		System.out.println(i);
 	}
@@ -118,20 +122,25 @@ class DemoApplicationTests {
     @Test
     public void testQueryRecord(){
   		//创建一个key对象
-		SeckillRecordKey key=new SeckillRecordKey(1,1);
+		SeckillRecordKey key=new SeckillRecordKey(1,1,4);
 		SeckillRecord record = recordMapper.querySeckillRecord(key);
-		System.out.println(record.getKey());
-		System.out.println(record.getSuccessTime());
+		System.out.println(record);
 	}
   //测试内容:更新秒杀记录
     @Test
     public void testUpdateRecord(){
-		SeckillRecord seckillRecord = recordMapper.querySeckillRecord(new SeckillRecordKey(1, 1));
-		seckillRecord.setSuccessTime("2023-01-11 22:30:00:000");
+		SeckillRecord seckillRecord = recordMapper.querySeckillRecord(new SeckillRecordKey(1, 1,4));
+		seckillRecord.setSeckillTime(new Date().getTime());
 		int i = recordMapper.updateSeckillRecord(seckillRecord);
 		System.out.println(i);
 	}
-
+  //测试内容:删除秒杀记录
+    @Test
+    public void testDeleteRecord(){
+  		SeckillRecordKey key=new SeckillRecordKey(1,1,4);
+		int i = recordMapper.deleteseckillRecordById(key);
+		System.out.println(i);
+	}
   //测试内容:查询用户
     @Test
     public void testQueryUser(){
@@ -173,15 +182,15 @@ class DemoApplicationTests {
   //测试内容:测试SeckillRecordService的使用
     @Test
     public void testSeckillRecordService(){
-  		//查询记录
-		SeckillRecordKey key=new SeckillRecordKey(1,1);
-		SeckillRecord oneSeckillRecord = seckillRecordService.getOneSeckillRecord(key);
-		System.out.println(oneSeckillRecord);
-		//测试插入同样键值的数据
-		SeckillRecord seckillRecord=new SeckillRecord(key,"");
-		//会返回影响行数为0
-		int i = seckillRecordService.addSeckillRecord(seckillRecord);
-		System.out.println(i);
+//  		//查询记录
+//		SeckillRecordKey key=new SeckillRecordKey(1,1);
+//		SeckillRecord oneSeckillRecord = seckillRecordService.getOneSeckillRecord(key);
+//		System.out.println(oneSeckillRecord);
+//		//测试插入同样键值的数据
+//		SeckillRecord seckillRecord=new SeckillRecord(key,"");
+//		//会返回影响行数为0
+//		int i = seckillRecordService.addSeckillRecord(seckillRecord);
+//		System.out.println(i);
 	}
 //	测试批量插入数据
 

@@ -8,33 +8,66 @@ package com.su.jsekill_project.pojo;
  * @Created by Lenovo
  */
 public class SeckillRecord {
-    //复合主键对象
-    private SeckillRecordKey key;
-    //秒杀成功的时间，字符串
-    private String successTime;
+    private int goodsId;
+    private int groupId;
+    private int userId;
+    //前面三个，是记录的主键
+    private long seckillTime;
 
-    public SeckillRecordKey getKey() {
-        return key;
+    public SeckillRecord(int goodsId, int groupId, int userId, long seckillTime) {
+        this.goodsId = goodsId;
+        this.groupId = groupId;
+        this.userId = userId;
+        this.seckillTime = seckillTime;
     }
-
-    public void setKey(SeckillRecordKey key) {
-        this.key = key;
+    //初始化主键
+    public void initKey(SeckillRecordKey recordKey){
+        this.goodsId=recordKey.getGoodsId();
+        this.groupId=recordKey.getGroupId();
+        this.userId=recordKey.getUserId();
     }
-
-    public String getSuccessTime() {
-        return successTime;
-    }
-
-    public void setSuccessTime(String successTime) {
-        this.successTime = successTime;
-    }
-
-    public SeckillRecord(SeckillRecordKey key, String successTime) {
-        this.key = key;
-        this.successTime = successTime;
-    }
-
     public SeckillRecord() {
+    }
 
+    public int getGoodsId() {
+        return goodsId;
+    }
+
+    public void setGoodsId(int goodsId) {
+        this.goodsId = goodsId;
+    }
+
+    public int getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public long getSeckillTime() {
+        return seckillTime;
+    }
+
+    @Override
+    public String toString() {
+        return "SeckillRecord{" +
+                "goodsId=" + goodsId +
+                ", groupId=" + groupId +
+                ", userId=" + userId +
+                ", seckillTime=" + seckillTime +
+                '}';
+    }
+
+    public void setSeckillTime(long seckillTime) {
+        this.seckillTime = seckillTime;
     }
 }

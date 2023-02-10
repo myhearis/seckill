@@ -112,12 +112,32 @@ public class RedisDaoImpl implements RedisDao {
         String value = enterMQValue(userId, goodsId, groupId);
         return redisTemplate.opsForSet().isMember(RedisKey.ENTER_SECKIL_MQ_KEY,value);
     }
-    //记录用户秒杀成功到redis中
+    //记录用户秒杀成功到redis中,商品唯一标识:Set集合<userId>
     @Override
     public Long userSeckillSuccessRecord(int goodsId, int groupId, int userId) {
         //生成set集合的key
         String setKey = seckillSuccessKey(goodsId, groupId);
         //直接将用户id作为value记录进入即可
         return redisTemplate.opsForSet().add(setKey,String.valueOf(userId));
+    }
+    //判断用户是否成功秒杀过该商品
+    @Override
+    public boolean isSeckillSuccessGoods(int goodsId, int groupId, int userId) {
+        //获取该商品的set集合的key
+        String setKey=seckillSuccessKey(goodsId,groupId);
+        return redisTemplate.opsForSet().isMember(setKey,String.valueOf(userId));
+    }
+    //从redis中获取指定商品的库存，如果不存在则返回-1
+    @Override
+    public int getSeckillGoodsStorage(int goodsId, int groupId) {
+        int count=-1;
+        //获取商品的库存key
+        String storageKey=storageKey(goodsId,groupId);
+        String s = redisTemplate.opsForValue().get(storageKey);
+        if (s!=null&&s.length()>0){
+            int parseInt = Integer.parseInt(s);
+            count=parseInt;
+        }
+        return count;
     }
 }

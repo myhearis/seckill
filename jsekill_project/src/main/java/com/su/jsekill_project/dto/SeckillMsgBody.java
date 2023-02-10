@@ -51,4 +51,13 @@ public class SeckillMsgBody implements Serializable {
 
     public SeckillMsgBody() {
     }
+
+    @Override
+    public String toString() {
+        return "SeckillMsgBody{" +
+                "userId=" + userId +
+                ", goodsId=" + goodsId +
+                ", groupId=" + groupId +
+                '}';
+    }
 }

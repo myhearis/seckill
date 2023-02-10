@@ -9,7 +9,16 @@ package com.su.jsekill_project.pojo;
  */
 public class SeckillRecordKey {
     private int goodsId;
+    private int groupId;
     private int userId;
+
+    public int getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
+    }
 
     public int getGoodsId() {
         return goodsId;
@@ -27,8 +36,9 @@ public class SeckillRecordKey {
         this.userId = userId;
     }
 
-    public SeckillRecordKey(int goodsId, int userId) {
+    public SeckillRecordKey(int goodsId, int groupId, int userId) {
         this.goodsId = goodsId;
+        this.groupId = groupId;
         this.userId = userId;
     }
 
@@ -39,6 +49,7 @@ public class SeckillRecordKey {
     public String toString() {
         return "SeckillRecordKey{" +
                 "goodsId=" + goodsId +
+                ", groupId=" + groupId +
                 ", userId=" + userId +
                 '}';
     }

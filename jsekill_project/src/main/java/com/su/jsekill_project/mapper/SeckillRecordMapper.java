@@ -9,10 +9,10 @@ import org.apache.ibatis.annotations.Param;
 public interface SeckillRecordMapper {
     //添加秒杀记录
     int insertSeckillRecord(@Param("seckillRecord") SeckillRecord seckillRecord);
-    //查询秒杀记录
+    //传入主键对象，查询秒杀记录
     SeckillRecord querySeckillRecord(@Param("seckillRecordKey") SeckillRecordKey seckillRecordKey);
     //更新秒杀记录
     int updateSeckillRecord(@Param("seckillRecord") SeckillRecord seckillRecord );
-    //删除秒杀记录
+    //传入主键对象，删除秒杀记录
     int deleteseckillRecordById(@Param("seckillRecordKey") SeckillRecordKey seckillRecordKey);
 }

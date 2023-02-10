@@ -8,6 +8,7 @@ import com.su.jsekill_project.constant.RedisKeyPrefix;
 import com.su.jsekill_project.dto.SeckillExecutionResult;
 import com.su.jsekill_project.dto.SeckillMsgBody;
 import com.su.jsekill_project.enums.SeckillStateEnum;
+import com.su.jsekill_project.exception.SeckillException;
 import com.su.jsekill_project.mapper.SeckillGoodsMapper;
 import com.su.jsekill_project.pojo.SeckillGoods;
 import com.su.jsekill_project.pojo.SeckillGoodsGroup;
@@ -285,6 +286,32 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService{
             //将当前用户的请求记录到redis中
 
         }
+    }
+    //在redis中真正执行秒杀操作
+    @Override
+    public void redisSeckillHandler(int userId, int goodsId, int groupId) throws SeckillException {
+        //判断库存是否充足
+        int storage = redisDao.getSeckillGoodsStorage(goodsId, groupId);
+        if (storage<=0){
+            throw new SeckillException(SeckillStateEnum.SOLD_OUT);
+        }
+        //判断是否重复秒杀
+        boolean seckillSuccessGoods = redisDao.isSeckillSuccessGoods(goodsId, groupId, userId);
+        if (seckillSuccessGoods){
+            throw new SeckillException(SeckillStateEnum.REPEAT_KILL);
+        }
+        //(上面这两个可以实现过滤的操作，但是依然会有极端情况，即两个相同的请求同时到达，且同时没有在redis中记录)
+        //获取分布式锁
+        //再次判断库存
+        //释放分布式锁
+        //生成订单对象
+    }
+    //redis秒杀成功后，修改数据库操作
+    @Override
+    public long updateStorageAndRecord(int userId, int goodsId, int groupId) {
+        //生成订单记录
+        //修改库存
+        return 0;
     }
 
     //判断当前服务器时间是否在秒杀时间段内

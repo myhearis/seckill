@@ -6,16 +6,19 @@
 <!--基础实体resultMap-->
     <resultMap id="baseSeckillRecord" type="SeckillRecord">
 <!--        复合主键-->
-        <id property="key.goodsId" column="seckill_goods_id"></id>
-        <id property="key.userId" column="user_id"></id>
-        <result property="successTime" column="seckill_time"></result>
+        <id property="goodsId" column="seckill_goods_id"></id>
+        <id property="groupId" column="group_id"></id>
+        <id property="userId" column="user_id"></id>
+        <result property="seckillTime" column="seckill_time"></result>
     </resultMap>
 <!--
  //添加秒杀记录
     int insertSeckillRecord(@Param("seckillRecord") SeckillRecord seckillRecord);
 -->
     <insert id="insertSeckillRecord">
-        INSERT INTO seckill_record(seckill_goods_id,user_id,seckill_time) VALUES (#{seckillRecord.key.goodsId},#{seckillRecord.key.userId},#{seckillRecord.successTime})
+        INSERT INTO seckill_record(seckill_goods_id,group_id,user_id,seckill_time)
+        VALUES
+        (#{seckillRecord.goodsId},#{seckillRecord.groupId},#{seckillRecord.userId},#{seckillRecord.seckillTime})
     </insert>
 <!--
    //查询秒杀记录
@@ -23,7 +26,7 @@
 
 -->
     <select id="querySeckillRecord" resultMap="baseSeckillRecord">
-        select * from  seckill_record WHERE seckill_goods_id=#{seckillRecordKey.goodsId} AND user_id=#{seckillRecordKey.userId};
+        select * from  seckill_record WHERE seckill_goods_id=#{seckillRecordKey.goodsId} AND user_id=#{seckillRecordKey.userId} AND group_id=#{seckillRecordKey.groupId};
     </select>
 
 <!--
@@ -32,7 +35,7 @@
     int deleteseckillRecordById(@Param("seckillRecordKey") SeckillRecordKey seckillRecordKey);
 -->
     <delete id="deleteseckillRecordById">
-        DELETE FROM seckill_record WHERE seckill_goods_id=#{seckillRecordKey.goodsId} AND user_id=#{seckillRecordKey.userId};
+        DELETE FROM seckill_record WHERE seckill_goods_id=#{seckillRecordKey.goodsId} AND user_id=#{seckillRecordKey.userId} AND group_id=#{seckillRecordKey.groupId};
     </delete>
 
 <!--
@@ -41,6 +44,6 @@
     int updateSeckillRecord(@Param("seckillRecord") SeckillRecord seckillRecord );
 -->
     <update id="updateSeckillRecord">
-        UPDATE seckill_record SET seckill_time=#{seckillRecord.successTime} WHERE seckill_goods_id=#{seckillRecord.key.goodsId} AND user_id=#{seckillRecord.key.userId};
+        UPDATE seckill_record SET seckill_time=#{seckillRecord.seckillTime} WHERE seckill_goods_id=#{seckillRecord.goodsId} AND user_id=#{seckillRecord.userId} AND group_id=#{seckillRecord.groupId};
     </update>
 </mapper>

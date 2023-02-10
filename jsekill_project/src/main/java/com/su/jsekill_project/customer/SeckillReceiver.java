@@ -5,8 +5,6 @@ import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-
 /**
  * @Classname SeckillReceiver
  * @author: 我心
@@ -17,6 +15,7 @@ import java.util.Map;
 @Component
 @RabbitListener(queues = "seckill_queue")
 public class SeckillReceiver {
+    //开始消费秒杀请求
     @RabbitHandler
     public  void  process(SeckillMsgBody msgBody){
         System.out.println("接收到消息"+msgBody);

@@ -29,8 +29,12 @@ public interface RedisDao {
     List<SeckillGoods> getSeckillGoodsList();
     //记录成功进入队列的请求到redis中,返回影响的个数
     Long enterMqRequest(int goodsId, int groupId, int userId);
-    //判断当前请求是否已经进入了mq中
+    //判断当前请求是否已经进入了mq中（在redis中记录的，但不一定准确，因为有可能ack超时没有记录到redis中，但是却进入了mq）
     boolean isEnterMQ(int goodsId,int groupId,int userId);
     //用户秒杀成功指定商品的记录
     Long userSeckillSuccessRecord(int goodsId,int groupId,int userId);
+    //判断当前用户是否已经秒杀成功过当前商品
+    boolean isSeckillSuccessGoods(int goodsId,int groupId,int userId);
+    //从redis中获取指定商品的库存，如果不存在则返回-1
+    int getSeckillGoodsStorage(int goodsId,int groupId);
 }

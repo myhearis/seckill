@@ -3,6 +3,7 @@ package com.su.jsekill_project.service;
 import com.su.jsekill_project.dto.SeckillExecutionResult;
 import com.su.jsekill_project.dto.SeckillMsgBody;
 import com.su.jsekill_project.dto.SeckillResult;
+import com.su.jsekill_project.exception.SeckillException;
 import com.su.jsekill_project.pojo.SeckillGoods;
 import com.su.jsekill_project.pojo.SeckillGoodsWrappings;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -55,4 +56,8 @@ public interface SeckillGoodsService {
     SeckillMsgBody createSeckillMsgBody(int goodsId,int groupId,int userId);
     //用于推送消息后的异步回调方法
     void confirmCallback(CorrelationData correlationData, boolean ack, String cause);
+    //消费者真正秒杀的方法
+    void redisSeckillHandler(int userId,int goodsId,int groupId) throws SeckillException;
+    //redis秒杀成功后，修改数据库操作
+    long updateStorageAndRecord(int userId,int goodsId,int groupId);
 }
