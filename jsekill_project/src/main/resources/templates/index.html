@@ -151,7 +151,8 @@
                                 url: "http://localhost:8080/seckill/pay/"+goodsId+"/"+groupId,
                                 dataType:"json",
                                 success:function (msg){
-
+                                  //msg格式SeckillResult<SeckillExecutionResult>
+                                    alert(msg.data.stateInfo);
                                 }
 
                             });
