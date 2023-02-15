@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.su.jsekill_project.mapper.SeckillGoodsGroupMapper">
+<!--商品组的基础map，没有集合依赖-->
+    <resultMap id="baseSeckillGoodsGroup" type="SeckillGoodsGroup">
+        <id property="groupId" column="group_id"></id>
+        <result property="start" column="start_time"></result>
+        <result property="end" column="end_time"></result>
+    </resultMap>
+
+<!--    商品组，包含了所在组的商品集合的属性-->
+    <resultMap id="seckillGoodsGroup" type="SeckillGoodsGroup">
+        <id property="groupId" column="group_id"></id>
+        <result property="start" column="start_time"></result>
+        <result property="end" column="end_time"></result>
+<!--       这里使用了分步查询，通过当前的组id去查找对应的商品集合 -->
+        <association property="goodsList" select="com.su.jsekill_project.mapper.SeckillGoodsMapper.querySeckillGoodsListByGroupId" column="group_id"></association>
+    </resultMap>
+<!--
+//    插入商品组
+    int insertSeckillGroup(@Param("seckillGoodsGroup") SeckillGoodsGroup seckillGoodsGroup);
+-->
+    <insert id="insertSeckillGroup" keyProperty="groupId" useGeneratedKeys="true">
+        INSERT INTO seckill_goods_group ( start_time, end_time )
+        VALUES (#{seckillGoodsGroup.start},#{seckillGoodsGroup.end})
+    </insert>
+<!--
+//    删除商品组
+    int deleteSeckillGroupById(@Param("groupId") int groupId);
+-->
+    <delete id="deleteSeckillGroupById">
+        DELETE FROM seckill_goods_group WHERE group_id=#{groupId};
+    </delete>
+
+<!--
+//    查询商品组
+    SeckillGoodsGroup querySeckillGoodsGroupById(@Param("groupId") int groupId);
+
+-->
+    <select id="querySeckillGoodsGroupById" resultMap="baseSeckillGoodsGroup">
+        SELECT * FROM seckill_goods_group WHERE group_id=#{groupId};
+    </select>
+
+<!--
+  //    更新商品组
+    int updateSeckillGoodsGroup(@Param("seckillGoodsGroup") SeckillGoodsGroup seckillGoodsGroup);
+
+-->
+    <update id="updateSeckillGoodsGroup">
+        UPDATE seckill_goods_group SET start_time=#{seckillGoodsGroup.start},end_time=#{seckillGoodsGroup.end} WHERE group_id=2;
+    </update>
+
+<!--
+//    查询商品组，同时加载组内的商品集合
+    SeckillGoodsGroup querySeckillGoodsGroupByIdAndGoodList(@Param("groupId") int groupId);
+-->
+    <select id="querySeckillGoodsGroupByIdAndGoodList" resultMap="seckillGoodsGroup">
+        SELECT * FROM seckill_goods_group WHERE group_id=#{groupId};
+    </select>
+<!--
+    查询所有商品组，以及所有商品组内的商品集合
+    List<SeckillGoods> queryAllGroup();
+
+-->
+    <select id="queryAllGroup" resultMap="seckillGoodsGroup">
+        SELECT * FROM seckill_goods_group;
+    </select>
+</mapper>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>秒杀首页</title>
+    <!-- 必须的 meta 标签 -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap 的 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <!--jQuery 和 Bootstrap 集成包（集成了 Popper） -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" th:src="@{/js/jquery.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" ></script>
+
+</head>
+
+<script>
+
+    $(function () {
+        
+        function getState(getting) {
+            $.ajax(getting);
+        }
+        //具体的轮询方法
+        function pollingState(goodsId,groupId,msg) {
+            //生成轮询url
+            var stateUrl="http://localhost:8080/seckill/state/"+goodsId+"/"+groupId;
+            //生成轮询的json对象
+            var getting = {
+                url:stateUrl,
+                dataType:'json',
+                success:function(msg) {
+                    console.log(msg);
+                    if (msg.data==1){
+                        alert("抢购成功");
+                        $(".toast").toast('show');
+                        window.clearInterval('getState(getting)');
+                    }
+                }
+
+            };
+            if (msg.data.state==6){
+                window.setInterval(getState(getting));
+            }
+            //ack超时
+            else if (msg.data.state==10){
+                window.setInterval(getState(getting));
+            }
+        }
+
+    //    请求服务器，获取商品数据
+        function getSeckillGoods() {
+            // alert("test");
+            //发送ajax请求，获取分页数据
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:8080/seckill/goodsListRedis/1",
+                dataType:"json",
+                success:function (msg) {
+                    //商品列表
+                    var goodsList=msg.data;
+                    //生成商品块
+                    for (var i=0;i<msg.data.length;i++){
+                        var goodsId=$("<input type='hidden' class='goodsId'>").val(goodsList[i].id);
+                        //商品名称
+                        var name= $("<h5 class='card-title'>苹果手机</h5>").text(goodsList[i].name);
+                        //商品描述
+                        var describe =$("<p class='card-text'></p>").text(goodsList[i].describe);
+                        //商品价格
+                        var price =$("<p class='card-text'></p>").text("商品价格:["+goodsList[i].price+"] 元").prop("color","red");
+                        // alert("price");
+                    //    封装到li中
+                    //     var li=$("<li class='list-group-item'></li>").append(name).append(describe);
+                        //秒杀按钮,默认隐藏
+                        //库存
+                        var storage =$("<p class='card-text '></p>").text("库存:["+goodsList[i].storage+"] ");
+                        var seckill_btn=$("<a  class='btn btn-primary seckill_button' >秒杀</a>").prop("hidden",false).prop("href","http://localhost:8080/seckill/pay/"+goodsList[i].id).attr("goodsId",goodsList[i].id).attr("groupId",goodsList[i].groupId);
+                        //包装的div，封装商品名称，描述，价格内容
+                        var body=$("<div class='card-body'></div>").append(name).append(describe).append(price).append(storage).append(seckill_btn);
+                        //将内容封装到卡片中
+                        var card=$("<div class='card' style='width: 18rem;'></div>").append(body);
+                        //封装到li中
+                        var li=$("<li class='list-group-item'></li>").append(card);
+                        // alert("1");
+                        //然后插入到ul中
+                        $(".goods_ul").append(li);
+
+                        //更新秒杀时间的描述,假设获取到的商品的秒杀时间都相同
+                        // var time="秒杀时间段:["+goodsList[0].start+"]至["+goodsList[0].end+"]";
+                        // $(".seckill_time_describe_p").text(time);
+                    }
+                    //商品名称
+
+                    //测试数据
+                    // alert("商品数量为"+goodsList.length);
+                    // alert(msg.data[0].name);
+                    // getSeckillGoods();
+
+                }
+
+            });
+        }
+        //格式化date对象，用于前台展示
+        function formatDate(date) {
+            //获取内容
+            var year=date.getFullYear();
+            var month=date.getMonth()+1;
+            var day=date.getDate();
+            var hour=date.getHours();
+            var minute=date.getMinutes();
+            var second=date.getSeconds();
+            //拼接
+            var dateStr=year+"年"+month+"月"+day+"日"+hour+"时"+minute+"分";
+            return dateStr;
+        }
+        //请求服务器，获取秒杀时间
+        function getSeckillTime() {
+            //展示秒杀时间的p标签
+            var decrebe_time_p= $(".seckill_time_describe_p");
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:8080/seckill/time/1",
+                dataType:"json",
+                success:function (msg){
+                    //获取服务器时间
+                    var now = new Date($.ajax({async: false}).getResponseHeader("Date"));
+
+                    //创建日期对象
+                    var startDate=new Date(msg.data.startTime);
+                    var endDate=new Date(msg.data.endTime);
+
+                    //格式化时间
+                    var startStr=formatDate(startDate);
+                    var endStr=formatDate(endDate);
+                    var timeViewStr=startStr+"~"+endStr;
+                    // alert(startStr);
+                    decrebe_time_p.text(timeViewStr);
+                    //给所有的秒杀按钮绑定秒杀的时间戳
+                    $(".seckill_button").attr("startTime",msg.data.startTime);
+                    $(".seckill_button").attr("endTime",msg.data.endTime);
+                    alert("系统已就绪");
+                    //给所有的秒杀按钮绑定点击事件
+                    $(".goods_ul").on("click","a",function () {
+                        //判断用户是否登录
+                        var user = $("#user").val();//获取用户的user对象
+                        alert("当前用户"+user);
+                        //用户未登录的情况
+                        if (user==undefined||user.length==0){
+                            //直接跳转到登录页
+                            // $.href="www.baidu.com";
+                            alert("您当前未登录");
+                             location.href="jsekill/login";
+                            return false;
+                        }
+                        //  var u= JSON.parse(user);
+                        // alert(u);
+                        //获取用户id
+                        var userId=user.userId;
+                        //获取当前服务器的时间戳
+                        var now = new Date($.ajax({async: false}).getResponseHeader("Date"));
+                        var nowTime = now.getTime();//当前服务器的时间戳
+                        //获取商品id
+                        var goodsId = $(this).attr("goodsId");
+                        var groupId=$(this).attr("groupId");
+                        //获取开始的时间戳
+                        var startTime=$(this).attr("startTime");
+                        var endTime=$(this).attr("endTime");
+                        //判断是否成功获取到了时间戳,没有则不请求
+                        if (startTime==undefined||endTime==undefined){
+                            alert("系统繁忙，请重新尝试!");
+                            return false;
+                        }
+                        //判断当前服务器时间是否在秒杀时间段当中，   当前时间戳>开始时间戳&&当前时间戳<结束时间戳
+                        console.log("当前时间戳:"+nowTime);
+                        console.log("秒杀开始时间戳:"+startTime);
+                        console.log("秒杀结束时间戳:"+endTime);
+                        if (nowTime>startTime&&nowTime<endTime){
+                            // alert("已经在秒杀时段内");
+                            //发起ajax请求
+                            $.ajax({
+                                type: "GET",
+                                url: "http://localhost:8080/seckill/pay/"+goodsId+"/"+groupId,
+                                dataType:"json",
+                                success:function (msg){
+                                    //msg格式SeckillResult<SeckillExecutionResult>
+                                    alert(msg.data.stateInfo);
+                                    //可以进行轮询的只有两种情况1、排队中2、ack超时，但是有可能已经发送成功了
+                                    //排队中
+                                    // //生成轮询url
+                                    // var stateUrl="http://localhost:8080/seckill/state/"+goodsId+"/"+groupId;
+                                    // //生成轮询的json对象
+                                    // var getting = {
+                                    //     url:stateUrl,
+                                    //     dataType:'json',
+                                    //     success:function(msg) {
+                                    //         console.log(msg);
+                                    //         if (msg.data==1){
+                                    //             alert("抢购成功");
+                                    //             $(".toast").toast('show');
+                                    //             window.clearInterval('getState(getting)');
+                                    //         }
+                                    //     }
+                                    //
+                                    // };
+                                    // if (msg.data.state==6){
+                                    //     window.setInterval(getState(getting));
+                                    // }
+                                    // //ack超时
+                                    // else if (msg.data.state==10){
+                                    //     window.setInterval(getState(getting));
+                                    // }
+
+
+                                    //调用轮询方法,直到返回信息为止
+                                    pollingState(goodsId,groupId,msg);
+                                    //或者给用户一个查看订单状态的内容，用户自行去查看
+                                    //返回值：1：秒杀成功 2：排队中
+
+
+
+                                }
+
+                            });
+                        }
+                        else {
+                            alert("当前不在秒杀时间段内");
+                            alert("当前商品组"+groupId);
+                        }
+
+                        //前端先判断商品库存,由于不是实时刷新的，这里仅仅是为了过滤一大部分请求
+                        return false;
+                    });
+                }
+
+            });
+        }
+
+
+
+        //获取商品列表
+        getSeckillGoods();
+        //获取商品时间
+        getSeckillTime();
+
+    });
+</script>
+<body>
+<div class="row">
+    <div class="col-md-12">
+        <!--               弹窗 -->
+
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="..." class="rounded mr-2" alt="...">
+                <strong class="mr-auto">Bootstrap</strong>
+                <small class="text-muted">just now</small>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body">
+                抢购成功!
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-9"></div>
+    <div class="col-md-3">
+        <ul class="list-unstyled">
+            <li class="media">
+                <img th:src="@{/img/Snipaste_2023-01-25_23-16-35.png}" width="20%" class="mr-3" alt="...">
+                <div class="media-body">
+                    <input type="hidden" id="user" th:value="${session.user}">
+                    <h5 class="mt-0 mb-1" id="username" th:text="${session.username}" th:username="${session.username}" >游客</h5>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="jumbotron jumbotron-fluid">
+                    <div class="container">
+                        <h1 class="display-4">秒杀商品页</h1>
+<!--                        秒杀时间段描述-->
+                        <p class="lead ">秒杀时间段</p>
+                        <p class="seckill_time_describe_p"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="list-group goods_ul">
+<!--                    <li class="list-group-item">-->
+<!--                        <div class="card" style="width: 18rem;">-->
+<!--                            <div class="card-body">-->
+<!--                                <h5 class="card-title" th:text="${#locale.toString()}">苹果手机</h5>-->
+<!--                                <p class="card-text" >Some quick example text to build on the card title and make up the bulk of the card's content.</p>-->
+<!--                                <a th:href="@{/}" class="btn btn-primary" >秒杀</a>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </li>-->
+
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+
+</body>
+</html>
