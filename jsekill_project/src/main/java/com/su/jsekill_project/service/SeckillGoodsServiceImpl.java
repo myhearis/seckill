@@ -23,10 +23,12 @@ import org.springframework.amqp.rabbit.core.RabbitOperations;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 /**
  * @Classname SeckillGoodsServiceImpl
@@ -38,6 +40,8 @@ import java.util.List;
 @Service
 public class SeckillGoodsServiceImpl implements SeckillGoodsService{
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    private LockRegistry lockRegistry;//分布式锁的注册实例
     @Autowired
     private RabbitMQConfigBean rabbitMQConfigBean;
     @Autowired
@@ -311,18 +315,30 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService{
         }
         //(上面这两个可以实现过滤的操作，但是依然会有极端情况，即两个相同的请求同时到达，且同时没有在redis中记录)
 
-        //获取分布式锁
-
-        //再次判断库存
-        int storageLock = redisDao.getSeckillGoodsStorage(goodsId, groupId);
-        if (storageLock<=0){
-            throw new SeckillException(SeckillStateEnum.SOLD_OUT);
+        //注册分布式锁
+        Lock lock = lockRegistry.obtain("lock");
+        try {
+            //获取锁信号量，如果获取不到，则会被阻塞
+            lock.lock();
+            logger.info("获取锁信号量成功！");
+            //System.out.println("immediate获取锁信号量成功！");
+            //再次判断库存
+            int storageLock = redisDao.getSeckillGoodsStorage(goodsId, groupId);
+            if (storageLock<=0){
+                throw new SeckillException(SeckillStateEnum.SOLD_OUT);
+            }
+            //减库存
+            redisDao.decrGoodsStorage(goodsId,groupId);
+            //在redis中记录秒杀成功
+            Long aLong = redisDao.userSeckillSuccessRecord(goodsId, groupId, userId);
+            System.out.println("immediate对临界资源操作完成!");
+        }finally {
+            //释放分布式锁
+            lock.unlock();
+            logger.info("释放分布式锁");
         }
-        //减库存
-        redisDao.decrGoodsStorage(goodsId,groupId);
-        //在redis中记录秒杀成功
-        Long aLong = redisDao.userSeckillSuccessRecord(goodsId, groupId, userId);
-        //释放分布式锁
+
+
     }
 
     //redis秒杀成功后，修改数据库操作

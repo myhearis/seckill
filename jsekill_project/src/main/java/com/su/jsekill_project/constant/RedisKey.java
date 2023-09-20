@@ -14,4 +14,5 @@ public class RedisKey {
     public static final String ENTER_SECKIL_MQ_KEY="ENTER_SECKIL_MQ";
     //商品预加载到redis中的key,类型是set
     public static final String SECKILL_GOODS_KEY="SECKILL_GOODS";
+
 }

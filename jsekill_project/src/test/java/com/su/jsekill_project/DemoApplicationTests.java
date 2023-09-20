@@ -319,8 +319,8 @@ class DemoApplicationTests {
     @Test
     public void testDateTime(){
 		//月份要+1才是真实月份
-		Date startDate=new Date(123,1, 8, 11, 30, 0);
-		Date endDate=new Date(123,1, 9, 13, 30, 0);
+		Date startDate=new Date(123,10, 17, 21, 30, 0);
+		Date endDate=new Date(123,10, 16, 23, 30, 0);
 //		System.out.println(startDate);
 		System.out.println(startDate.getTime());
 		System.out.println(endDate.getTime());

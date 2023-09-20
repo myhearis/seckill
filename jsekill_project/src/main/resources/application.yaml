@@ -21,6 +21,9 @@ spring:
     publisher-confirm-type: correlated
       #确认消息已发送到队列(Queue)
     publisher-returns: true
+  # zookeeper
+
+  # redis
   redis:
     # Redis服务器地址
     host: 192.168.234.169
