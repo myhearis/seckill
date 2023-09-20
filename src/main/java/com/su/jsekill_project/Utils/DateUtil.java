@@ -20,7 +20,7 @@ import java.util.Date;
 public class DateUtil {
     private static final Logger logger = LoggerFactory.getLogger(DateUtil.class);
     //精确到毫秒数，便于解析时得到的毫秒数与原来的毫秒数相同
-    public static final String DEFAULT_FORMAT="YYYY-MM-DD HH:mm:ss:SSS";
+    public static final String DEFAULT_FORMAT="yyyy-MM-dd HH:mm:ss:SSS";
     private String format=DEFAULT_FORMAT;
     public static final SimpleDateFormat simpleDateFormat=new SimpleDateFormat(DEFAULT_FORMAT);
 
@@ -70,9 +70,13 @@ public class DateUtil {
 //        System.out.println(parse.getTime());
 
         //测试封装剩余时间
-        SeckillRemainTime remainTime = dateUtil.getRemainTime(123500026);
-        System.out.println("剩余小时:"+remainTime.getHour());
-        System.out.println("剩余分钟:"+remainTime.getMinute());
-        System.out.println("剩余秒数:"+remainTime.getSecond());
+//        SeckillRemainTime remainTime = dateUtil.getRemainTime(123500026);
+//        System.out.println("剩余小时:"+remainTime.getHour());
+//        System.out.println("剩余分钟:"+remainTime.getMinute());
+//        System.out.println("剩余秒数:"+remainTime.getSecond());
+        Date parse = dateUtil.parse("2023-09-20 10:32:00:000");
+        System.out.println(parse);
+        System.out.println(dateUtil.dateToStr(parse));
+
     }
 }

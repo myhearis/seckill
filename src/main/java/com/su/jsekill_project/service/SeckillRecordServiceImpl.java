@@ -36,4 +36,9 @@ public class SeckillRecordServiceImpl implements SeckillRecordService{
     public SeckillRecord getOneSeckillRecord(SeckillRecordKey key) {
         return seckillRecordMapper.querySeckillRecord(key);
     }
+
+    @Override
+    public void flushRecords() {
+        seckillRecordMapper.flushRecords();
+    }
 }

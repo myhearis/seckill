@@ -9,6 +9,7 @@ import com.su.jsekill_project.redisDao.RedisDao;
 import com.su.jsekill_project.type.SeckillGoodsGroupType;
 import com.su.jsekill_project.type.SeckillGoodsListType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -119,5 +120,12 @@ public class RedisDaoImpl implements RedisDao {
         String setKey = seckillSuccessKey(goodsId, groupId);
         //直接将用户id作为value记录进入即可
         return redisTemplate.opsForSet().add(setKey,String.valueOf(userId));
+    }
+
+    @Override
+    public boolean reFlushRedis() {
+        RedisConnection connection = redisTemplate.getConnectionFactory().getConnection();
+        connection.flushAll();
+        return true;
     }
 }

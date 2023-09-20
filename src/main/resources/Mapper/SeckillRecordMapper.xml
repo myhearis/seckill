@@ -43,4 +43,9 @@
     <update id="updateSeckillRecord">
         UPDATE seckill_record SET seckill_time=#{seckillRecord.successTime} WHERE seckill_goods_id=#{seckillRecord.key.goodsId} AND user_id=#{seckillRecord.key.userId};
     </update>
+<!--    //刷新records表，全部清空-->
+<!--    void flushRecords();-->
+    <delete id="flushRecords">
+        delete  from seckill_record where  1=1;
+    </delete>
 </mapper>

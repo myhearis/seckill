@@ -19,5 +19,6 @@ public interface SeckillRecordService {
     int updateSeckillRecord(SeckillRecord seckillRecord);
 //    查找记录
     SeckillRecord getOneSeckillRecord(SeckillRecordKey key);
-
+    //刷新record表
+    void flushRecords();
 }

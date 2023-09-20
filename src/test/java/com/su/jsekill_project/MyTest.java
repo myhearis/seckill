@@ -25,5 +25,6 @@ public class MyTest {
 //        通过驱动获取连接
         Connection connect = driver.connect(url, properties);
         System.out.println(connect);
+
     }
 }

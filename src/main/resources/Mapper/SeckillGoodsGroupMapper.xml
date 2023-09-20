@@ -49,7 +49,7 @@
 
 -->
     <update id="updateSeckillGoodsGroup">
-        UPDATE seckill_goods_group SET start_time=#{seckillGoodsGroup.start},end_time=#{seckillGoodsGroup.end} WHERE group_id=2;
+        UPDATE seckill_goods_group SET start_time=#{seckillGoodsGroup.start},end_time=#{seckillGoodsGroup.end} WHERE group_id=#{seckillGoodsGroup.groupId};
     </update>
 
 <!--

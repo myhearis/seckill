@@ -33,4 +33,6 @@ public interface RedisDao {
     boolean isEnterMQ(int goodsId,int groupId,int userId);
     //用户秒杀成功指定商品的记录
     Long userSeckillSuccessRecord(int goodsId,int groupId,int userId);
+    //刷新redis缓存
+    boolean reFlushRedis();
 }

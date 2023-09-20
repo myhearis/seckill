@@ -15,4 +15,6 @@ public interface SeckillRecordMapper {
     int updateSeckillRecord(@Param("seckillRecord") SeckillRecord seckillRecord );
     //删除秒杀记录
     int deleteseckillRecordById(@Param("seckillRecordKey") SeckillRecordKey seckillRecordKey);
+    //刷新records表，全部清空
+    void flushRecords();
 }
